@@ -1,6 +1,7 @@
 package eu.fbk.fm.web1t;
 
 import javafx.util.Pair;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,9 +9,19 @@ import java.util.Map;
 
 public class Searcher {
 
+    private final static Logger LOGGER = Logger.getLogger(Searcher.class);
+
+    public static String shell = "/bin/sh";
+
+    public static String readCommand = "zcat";
+
+    public static String valueSeparator = "\t";
+
+    public static String newLineSeparator = "\n";
+
     private Map<Integer, Index> indexes = new HashMap<>();
 
-    public Searcher(final Map<Integer, String> indexesInfo) {
+    public Searcher(final Map<Integer, String> indexesInfo) throws IOException {
 
         for (Map.Entry<Integer, String> info : indexesInfo.entrySet()) {
             Index index = new Index();
@@ -22,7 +33,15 @@ public class Searcher {
     public long getScore(final int N, final String key) throws IOException {
 
         final Index index = indexes.get(N);
+        if (index == null) {
+            LOGGER.debug(String.format("Wrong N (N=%s) value.", N));
+            return 0;
+        }
         final String fileName = getFileName(index, key);
+        if (index == null) {
+            LOGGER.debug(String.format("Cannot find any file (key=%s).", key));
+            return 0;
+        }
         final long score = getScoreFromFile(fileName, key);
         return score;
     }
@@ -39,9 +58,10 @@ public class Searcher {
 
     private long getScoreFromFile(final String fileName, final String key) throws IOException {
 
-        String output = Utils.runShellCommand("/bin/sh", "-c", String.format("zcat %s | grep %s", fileName, key));
-        for (String line : output.split("\n")) {
-            String[] values = line.split( "\t");
+        final String command = String.format("%s %s | grep \"%s\"", readCommand, fileName, key);
+        final String output = Utils.runShellCommand(shell, "-c", command);
+        for (String line : output.split(newLineSeparator)) {
+            String[] values = line.split(valueSeparator);
             if (values.length == 2 && values[0].equals(key)) {
                 return Long.valueOf(values[1]);
             }
