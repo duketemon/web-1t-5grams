@@ -42,6 +42,7 @@ public class Searcher {
             LOGGER.debug(String.format("Cannot find any file (key=%s).", key));
             return 0;
         }
+        LOGGER.debug(String.format("File name for the phrase `%s`: %s", key, fileName));
         final long score = getScoreFromFile(fileName, key);
         return score;
     }
@@ -58,10 +59,10 @@ public class Searcher {
 
     private long getScoreFromFile(final String fileName, final String key) throws IOException {
 
-        final String command = String.format("%s %s | grep \"%s\"", readCommand, fileName, key);
+        final String command = String.format("%s %s | grep --max-count=1 -P \"^%s\t\"", readCommand, fileName, key);
         final String output = Utils.runShellCommand(shell, "-c", command);
-        for (String line : output.split(newLineSeparator)) {
-            String[] values = line.split(valueSeparator);
+        if (output != null) {
+            final String[] values = output.replace(newLineSeparator, "").split(valueSeparator);
             if (values.length == 2 && values[0].equals(key)) {
                 return Long.valueOf(values[1]);
             }
