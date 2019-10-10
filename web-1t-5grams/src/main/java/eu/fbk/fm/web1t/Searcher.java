@@ -37,12 +37,17 @@ public class Searcher {
             LOGGER.debug(String.format("Wrong N (N=%s) value.", N));
             return 0;
         }
+        if (N != key.split(" ").length) {
+            LOGGER.debug("Length of tokens not equals to the number of N-grams.");
+            return 0;
+        }
+
         final String fileName = getFileName(index, key);
         if (index == null) {
             LOGGER.debug(String.format("Cannot find any file (key=%s).", key));
             return 0;
         }
-        LOGGER.debug(String.format("File name for the phrase `%s`: %s", key, fileName));
+        LOGGER.debug(String.format("`%s` - file name for the phrase `%s`", key, fileName));
         final long score = getScoreFromFile(fileName, key);
         return score;
     }
