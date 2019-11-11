@@ -1,16 +1,6 @@
 # web-1t-5grams
 Easy way to access Google Web 1T 5-Grams
 
-## Maven
-The library is available from Maven Central and Spring Release repository via BOM:
-```xml
-<dependency>
-  <groupId>eu.fbk.fm</groupId>
-  <artifactId>web-1t-5grams</artifactId>
-  <version>1.0</version>
-</dependency>
-```
-
 ## Requirements
 * Oracle JDK 8+ 
 * Maven 4.0.0
